@@ -1068,16 +1068,21 @@ end)
 test("run_on_actor", function(f)
     local actor = Instance.new("Actor", game:GetService("Players").LocalPlayer)
     actor.Name = "run_on_actor"
+    
+    getgenv().THIS_SHOULD_NOT_PERSIST_DUE_TO_MEMCAT = function()end
 
-    f(actor, [[
+    run_on_actor(actor, [[
+        if getgenv().THIS_SHOULD_NOT_PERSIST_DUE_TO_MEMCAT then
+            return
+        end
         Instance.new("Folder", game:GetService("Players").LocalPlayer.run_on_actor).Name = "test"
     ]])
 
-    task.wait()
+    task.wait(0.2)
 
+    getgenv().THIS_SHOULD_NOT_PERSIST_DUE_TO_MEMCAT = nil
     assert(actor:FindFirstChild("test"), "did not create an Instance")
 
-    task.wait()
     actor:Destroy()
 end)
 
